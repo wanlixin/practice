@@ -51,7 +51,7 @@ public class GongZhuView extends JComponent implements ActionListener {
 				try {
 					frame.add(new GongZhuView(), "Center");
 				} catch (Throwable ex) {
-					appendStatus(formatException2(ex));
+					appendStatus(formatException(ex));
 				}
 
 				frame.setVisible(true);
@@ -67,24 +67,24 @@ public class GongZhuView extends JComponent implements ActionListener {
 	public GongZhuView() throws Exception {
 		backgroundImage = loadImage("/res/bmp1/bjta2.bmp");
 		backImage = loadImage("/res/bmp1/dpta2.bmp");
-		cardImages = new Image[] { loadImage("/res/bmp2/11.bmp"), loadImage("/res/bmp2/12.bmp"),
-				loadImage("/res/bmp2/13.bmp"), loadImage("/res/bmp2/14.bmp"), loadImage("/res/bmp2/15.bmp"),
-				loadImage("/res/bmp2/16.bmp"), loadImage("/res/bmp2/17.bmp"), loadImage("/res/bmp2/18.bmp"),
-				loadImage("/res/bmp2/19.bmp"), loadImage("/res/bmp2/1a.bmp"), loadImage("/res/bmp2/1b.bmp"),
-				loadImage("/res/bmp2/1c.bmp"), loadImage("/res/bmp2/1d.bmp"), loadImage("/res/bmp2/21.bmp"),
-				loadImage("/res/bmp2/22.bmp"), loadImage("/res/bmp2/23.bmp"), loadImage("/res/bmp2/24.bmp"),
-				loadImage("/res/bmp2/25.bmp"), loadImage("/res/bmp2/26.bmp"), loadImage("/res/bmp2/27.bmp"),
-				loadImage("/res/bmp2/28.bmp"), loadImage("/res/bmp2/29.bmp"), loadImage("/res/bmp2/2a.bmp"),
-				loadImage("/res/bmp2/2b.bmp"), loadImage("/res/bmp2/2c.bmp"), loadImage("/res/bmp2/2d.bmp"),
-				loadImage("/res/bmp2/31.bmp"), loadImage("/res/bmp2/32.bmp"), loadImage("/res/bmp2/33.bmp"),
-				loadImage("/res/bmp2/34.bmp"), loadImage("/res/bmp2/35.bmp"), loadImage("/res/bmp2/36.bmp"),
-				loadImage("/res/bmp2/37.bmp"), loadImage("/res/bmp2/38.bmp"), loadImage("/res/bmp2/39.bmp"),
-				loadImage("/res/bmp2/3a.bmp"), loadImage("/res/bmp2/3b.bmp"), loadImage("/res/bmp2/3c.bmp"),
-				loadImage("/res/bmp2/3d.bmp"), loadImage("/res/bmp2/41.bmp"), loadImage("/res/bmp2/42.bmp"),
-				loadImage("/res/bmp2/43.bmp"), loadImage("/res/bmp2/44.bmp"), loadImage("/res/bmp2/45.bmp"),
-				loadImage("/res/bmp2/46.bmp"), loadImage("/res/bmp2/47.bmp"), loadImage("/res/bmp2/48.bmp"),
-				loadImage("/res/bmp2/49.bmp"), loadImage("/res/bmp2/4a.bmp"), loadImage("/res/bmp2/4b.bmp"),
-				loadImage("/res/bmp2/4c.bmp"), loadImage("/res/bmp2/4d.bmp") };
+		cardImages = new Image[] { loadImage("/res/bmp2/12.bmp"), loadImage("/res/bmp2/13.bmp"),
+				loadImage("/res/bmp2/14.bmp"), loadImage("/res/bmp2/15.bmp"), loadImage("/res/bmp2/16.bmp"),
+				loadImage("/res/bmp2/17.bmp"), loadImage("/res/bmp2/18.bmp"), loadImage("/res/bmp2/19.bmp"),
+				loadImage("/res/bmp2/1a.bmp"), loadImage("/res/bmp2/1b.bmp"), loadImage("/res/bmp2/1c.bmp"),
+				loadImage("/res/bmp2/1d.bmp"), loadImage("/res/bmp2/11.bmp"), loadImage("/res/bmp2/22.bmp"),
+				loadImage("/res/bmp2/23.bmp"), loadImage("/res/bmp2/24.bmp"), loadImage("/res/bmp2/25.bmp"),
+				loadImage("/res/bmp2/26.bmp"), loadImage("/res/bmp2/27.bmp"), loadImage("/res/bmp2/28.bmp"),
+				loadImage("/res/bmp2/29.bmp"), loadImage("/res/bmp2/2a.bmp"), loadImage("/res/bmp2/2b.bmp"),
+				loadImage("/res/bmp2/2c.bmp"), loadImage("/res/bmp2/2d.bmp"), loadImage("/res/bmp2/21.bmp"),
+				loadImage("/res/bmp2/32.bmp"), loadImage("/res/bmp2/33.bmp"), loadImage("/res/bmp2/34.bmp"),
+				loadImage("/res/bmp2/35.bmp"), loadImage("/res/bmp2/36.bmp"), loadImage("/res/bmp2/37.bmp"),
+				loadImage("/res/bmp2/38.bmp"), loadImage("/res/bmp2/39.bmp"), loadImage("/res/bmp2/3a.bmp"),
+				loadImage("/res/bmp2/3b.bmp"), loadImage("/res/bmp2/3c.bmp"), loadImage("/res/bmp2/3d.bmp"),
+				loadImage("/res/bmp2/31.bmp"), loadImage("/res/bmp2/42.bmp"), loadImage("/res/bmp2/43.bmp"),
+				loadImage("/res/bmp2/44.bmp"), loadImage("/res/bmp2/45.bmp"), loadImage("/res/bmp2/46.bmp"),
+				loadImage("/res/bmp2/47.bmp"), loadImage("/res/bmp2/48.bmp"), loadImage("/res/bmp2/49.bmp"),
+				loadImage("/res/bmp2/4a.bmp"), loadImage("/res/bmp2/4b.bmp"), loadImage("/res/bmp2/4c.bmp"),
+				loadImage("/res/bmp2/4d.bmp"), loadImage("/res/bmp2/41.bmp") };
 		Timer timer = new Timer(500, this);
 		timer.start();
 	}
@@ -102,7 +102,7 @@ public class GongZhuView extends JComponent implements ActionListener {
 			}
 		}
 
-		int step = vertical ? (add ? 6 : -6) : (add ? 10 : -10);
+		int step = vertical ? (add ? 13 : -13) : (add ? 10 : -10);
 
 		if (vertical) {
 			y -= count * step;
@@ -127,32 +127,37 @@ public class GongZhuView extends JComponent implements ActionListener {
 		g.drawImage(backgroundImage, 0, 0, this);
 
 		drawCards(gongZhuDoc.mCards[0], g, 300, 360, false, true, false);
-		drawCards(gongZhuDoc.mCards[1], g, 560, 180, true, false, true);
-		drawCards(gongZhuDoc.mCards[2], g, 290, 10, false, false, true);
-		drawCards(gongZhuDoc.mCards[3], g, 10, 200, true, true, true);
+		drawCards(gongZhuDoc.mCards[1], g, 560, 180, true, true, false);
+		drawCards(gongZhuDoc.mCards[2], g, 290, 10, false, false, false);
+		drawCards(gongZhuDoc.mCards[3], g, 10, 200, true, false, false);
 
 		drawCards(gongZhuDoc.mGotCards[0], g, 300, 420, false, true, false);
-		drawCards(gongZhuDoc.mGotCards[1], g, 600, 180, true, false, false);
+		drawCards(gongZhuDoc.mGotCards[1], g, 600, 180, true, true, false);
 		drawCards(gongZhuDoc.mGotCards[2], g, 290, -50, false, false, false);
-		drawCards(gongZhuDoc.mGotCards[3], g, -40, 200, true, true, false);
+		drawCards(gongZhuDoc.mGotCards[3], g, -40, 200, true, false, false);
 
-		if (gongZhuDoc.mCurrentCards[0] != -1) {
-			g.drawImage(cardImages[0], 290, 250, this);
+		int usedCardsIndex = gongZhuDoc.mUsedCardsIndex;
+		if (gongZhuDoc.mUsedCards[0][usedCardsIndex] != -1) {
+			g.drawImage(cardImages[gongZhuDoc.mUsedCards[0][usedCardsIndex]], 290, 250, this);
 		}
-		if (gongZhuDoc.mCurrentCards[1] != -1) {
-			g.drawImage(cardImages[1], 380, 180, this);
+		if (gongZhuDoc.mUsedCards[1][usedCardsIndex] != -1) {
+			g.drawImage(cardImages[gongZhuDoc.mUsedCards[1][usedCardsIndex]], 380, 180, this);
 		}
-		if (gongZhuDoc.mCurrentCards[2] != -1) {
-			g.drawImage(cardImages[2], 290, 120, this);
+		if (gongZhuDoc.mUsedCards[2][usedCardsIndex] != -1) {
+			g.drawImage(cardImages[gongZhuDoc.mUsedCards[2][usedCardsIndex]], 290, 120, this);
 		}
-		if (gongZhuDoc.mCurrentCards[3] != -1) {
-			g.drawImage(cardImages[3], 200, 180, this);
+		if (gongZhuDoc.mUsedCards[3][usedCardsIndex] != -1) {
+			g.drawImage(cardImages[gongZhuDoc.mUsedCards[3][usedCardsIndex]], 200, 180, this);
 		}
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		gongZhuDoc.tick();
-		repaint();
+		try {
+			gongZhuDoc.tick();
+			repaint();
+		} catch (Throwable ex) {
+			appendStatus(formatException(ex));
+		}
 	}
 }
