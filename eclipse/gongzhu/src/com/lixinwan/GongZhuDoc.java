@@ -132,7 +132,7 @@ public class GongZhuDoc {
 			}
 			usedCards[4][i] = first;
 		}
-		int currentCard = mPlayers[player].tick(cards, mUsedCardsIndex, usedCards, gotCards);
+		int currentCard = mPlayers[player].tick(cards, usedCards, gotCards);
 
 		Arrays.sort(mCards[player]);
 		int currentCardIndex = Arrays.binarySearch(mCards[player], currentCard);
@@ -157,12 +157,13 @@ public class GongZhuDoc {
 	}
 
 	public interface Player {
-		int tick(int[] cards, int usedCardsIndex, int[][] usedCards, int[][] gotCards);
+		int tick(int[] cards, int[][] usedCards, int[][] gotCards);
 	}
 
 	class AiPlayer implements Player {
 		@Override
-		public int tick(int[] cards, int usedCardsIndex, int[][] usedCards, int[][] gotCards) {
+		public int tick(int[] cards, int[][] usedCards, int[][] gotCards) {
+			int usedCardsIndex = usedCards[4].length - 1;
 			int firstPlayer = usedCards[4][usedCardsIndex];
 			if (firstPlayer != 0) {
 				int firstCard = usedCards[firstPlayer][usedCardsIndex];
