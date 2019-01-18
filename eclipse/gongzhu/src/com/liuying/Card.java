@@ -29,14 +29,13 @@ public class Card {
 	public void setPoint(int point) {
 		Point = point;
 	}
-	
-	public boolean equals(Object obj) {   
-        if (obj instanceof Card) {   
-        	Card c = (Card) obj;   
-            return this.getColor().equals(c.getColor())   
-                    && this.getPoint()==c.getPoint();   
-        }   
-        return super.equals(obj);  
+
+	public boolean equals(Object obj) {
+		if (obj instanceof Card) {
+			Card c = (Card) obj;
+			return this.getColor().equals(c.getColor()) && this.getPoint() == c.getPoint();
+		}
+		return super.equals(obj);
 	}
 
 }

@@ -9,15 +9,19 @@ public class GongZhuDoc {
 	int[][] mUsedCards = new int[][] { new int[13], new int[13], new int[13], new int[13], new int[13] };
 	int mUsedCardsIndex;
 	int[][] mGotCards = new int[][] { new int[17], new int[17], new int[17], new int[17] };
+	int[] mScores = new int[4];
 
 	private static final Random sRandom = new Random();
 	private Player[] mPlayers;
 	private int mPlayerIndex;
 
-	GongZhuDoc() {
-		mPlayers = new Player[] { null, new AiPlayer(), new AiPlayer(), new AiPlayer() };
-
+	public GongZhuDoc(Player player0, Player player1, Player player2, Player player3) {
+		mPlayers = new Player[] { player0, player1, player2, player3 };
 		startGame();
+	}
+
+	public int[] getScores() {
+		return mScores.clone();
 	}
 
 	void startGame() {
@@ -98,7 +102,7 @@ public class GongZhuDoc {
 		mPlayerIndex++;
 	}
 
-	void tick() throws Exception {
+	public boolean tick() throws Exception {
 		int firstPlayer = mUsedCards[4][mUsedCardsIndex];
 
 		if (mPlayerIndex > 3) {
@@ -122,14 +126,57 @@ public class GongZhuDoc {
 			Arrays.sort(mGotCards[maxCardPlayer]);
 
 			if (++mUsedCardsIndex >= 13) {
+				boolean[] slots = new boolean[52];
+				for (int i = 0; i < 4; i++) {
+					Arrays.fill(slots, false);
+					for (int card : mGotCards[i]) {
+						if (card != -1) {
+							slots[card] = true;
+						}
+					}
+					int score = 0;
+					boolean gotBlood = false;
+					boolean gotAllBlood = true;
+					for (int j = 26; j < 39; j++) {
+						if (slots[j]) {
+							if (j > 33) {
+								score -= (j - 33) * 10;
+							} else if (j > 28) {
+								score -= 10;
+							}
+							gotBlood = true;
+						} else {
+							gotAllBlood = false;
+						}
+					}
+					if (gotAllBlood) {
+						score = -score;
+					}
+					boolean gotAllCard = gotAllBlood && slots[9] && slots[23] && slots[47];
+					if (slots[9]) {
+						score += 100;
+					}
+					if (slots[23]) {
+						score += (gotAllCard ? 100 : -100);
+					}
+					if (slots[47]) {
+						if (gotBlood || slots[9] || slots[23]) {
+							score *= 2;
+						} else {
+							score += 50;
+						}
+					}
+					mScores[i] += score;
+				}
+
 				startGame();
-				return;
+				return false;
 			}
 
 			mUsedCards[4][mUsedCardsIndex] = maxCardPlayer;
 			mPlayerIndex = 0;
 
-			return;
+			return true;
 		}
 
 		int player = firstPlayer + mPlayerIndex;
@@ -138,7 +185,7 @@ public class GongZhuDoc {
 		}
 
 		if (mPlayers[player] == null) {
-			return;
+			return true;
 		}
 
 		int[] cards = trimArray(mCards[player]);
@@ -163,6 +210,8 @@ public class GongZhuDoc {
 		int currentCard = mPlayers[player].tick(cards, usedCards, gotCards);
 
 		useCard2(player, currentCard);
+
+		return true;
 	}
 
 	void useCard(int player, int card) throws Exception {
@@ -187,7 +236,7 @@ public class GongZhuDoc {
 		int tick(int[] cards, int[][] usedCards, int[][] gotCards);
 	}
 
-	private static class AiPlayer implements Player {
+	public static class AiPlayer implements Player {
 		@Override
 		public int tick(int[] cards, int[][] usedCards, int[][] gotCards) {
 			int usedCardsIndex = usedCards[4].length - 1;

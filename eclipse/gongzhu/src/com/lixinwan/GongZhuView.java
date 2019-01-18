@@ -69,7 +69,8 @@ public class GongZhuView extends JComponent implements ActionListener, MouseList
 		});
 	}
 
-	private GongZhuDoc gongZhuDoc = new GongZhuDoc();
+	private GongZhuDoc gongZhuDoc = new GongZhuDoc(null, new GongZhuDoc.AiPlayer(), new com.liuying.Player(),
+			new GongZhuDoc.AiPlayer());
 	private Image backgroundImage;
 	private Image backImage;
 	private Image[] cardImages;
