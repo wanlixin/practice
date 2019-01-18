@@ -29,47 +29,27 @@ public class Utils {
 	static Comparator<Card> comparatorCardLargeToSmall = new Comparator<Card>() {
 		@Override
 		public int compare(Card c1, Card c2) {
-			if (c1.getPoint() >= c2.getPoint()) {
-				return -1;
-			} else {
-				return 1;
-			}
+			
+			return (c2.getPoint() - c1.getPoint());
 		}
+			
 	};
 
 	static Comparator<Card> comparatorCardSmallToLarge = new Comparator<Card>() {
 		@Override
 		public int compare(Card c1, Card c2) {
-			if (c1.getPoint() < c2.getPoint()) {
-				return -1;
-			} else {
-				return 1;
-			}
+			
+			return (c1.getPoint() - c2.getPoint());
 		}
+			
 	};
 
 	static Comparator<Card> comparatorSelectCardToSend = new Comparator<Card>() {
 		@Override
 		public int compare(Card c1, Card c2) {
-			return (c1.Percentage == c2.Percentage) ? (c1.count - c2.count) : (int) (c2.Percentage - c1.Percentage);
-
-//			if (c1.Percentage > c2.Percentage)
-//			{
-//				return -1;
-//			} 
-//			if(c1.Percentage == c2.Percentage)
-//			{
-//				if(c1.count < c2.count)
-//				{
-//					return -1;
-//				}
-//				else
-//				{
-//					return 1;
-//				}
-//			}
-//			
-//			return 1;			
+				
+			return (c1.Percentage == c2.Percentage) ? (c1.count - c2.count) : (int) (c2.Percentage * 10000 - c1.Percentage * 10000);
+		
 		}
 	};
 
@@ -84,40 +64,6 @@ public class Utils {
 			}
 
 		}
-//		boolean exist = false;
-//		for (int i = 0; i < 13; i++) {
-//			
-//			exist = false;
-//			
-//			for(Card c1 : cardOnTable)
-//			{
-//				if(c1.getPoint() == (i+2))
-//				{
-//					exist = true;
-//					break;
-//				}
-//			}
-//			
-//			if(!exist)
-//			{
-//				for(Card c2 : cardInHand)
-//				{
-//					if(c2.getPoint() == (i+2))
-//					{
-//						exist = true;
-//						break;
-//					}
-//				}
-//			}
-//			
-//			if(exist == false)
-//			{
-//				Card c = new Card(cardType.toString(), i + 2);
-//				cardInOther.add(c);
-//				
-//			}		
-//		}
-
 		cardInOther.sort(comparatorCardLargeToSmall);
 		return cardInOther;
 	}
@@ -372,8 +318,14 @@ public class Utils {
 		System.out.println(Day.FRIDAY.toString());
 
 		Card c1 = new Card("11", 3);
+		c1.Percentage = 0.2;
+		c1.count = 3;
 		Card c2 = new Card("22", 5);
+		c2.Percentage = 0.8;
+		c2.count = 4;
 		Card c3 = new Card("33", 1);
+		c3.Percentage = 0.2;
+		c3.count = 2;
 
 		ArrayList<Card> testArray = new ArrayList<>();
 		testArray.add(c1);
@@ -388,23 +340,28 @@ public class Utils {
 			System.out.println(testArray.get(i).getPoint());
 		}
 
-		Comparator<Card> comparatorCard = new Comparator<Card>() {
-			@Override
-			public int compare(Card c1, Card c2) {
-				if (c1.getPoint() >= c2.getPoint()) {
-					return -1;
-				} else {
-					return 1;
-				}
-			}
-		};
 
-		testArray.sort(comparatorCard);
-
+		testArray.sort(comparatorCardSmallToLarge);
+		System.out.println("Small To Large");
+		for (int i = 0; i < testArray.size(); i++) {
+			System.out.println(testArray.get(i).getPoint());
+		}
+		
+		testArray.sort(comparatorCardLargeToSmall);
+		System.out.println("Large To Small");
+		for (int i = 0; i < testArray.size(); i++) {
+			System.out.println(testArray.get(i).getPoint());
+		}
+		
+		
+	testArray.sort(comparatorSelectCardToSend);
+		System.out.println("comparatorSelectCardToSend");
 		for (int i = 0; i < testArray.size(); i++) {
 			System.out.println(testArray.get(i).getPoint());
 		}
 
 	}
+	}
 
-}
+
+
