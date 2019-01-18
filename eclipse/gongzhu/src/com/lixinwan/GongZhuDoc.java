@@ -11,14 +11,11 @@ public class GongZhuDoc {
 	int[][] mGotCards = new int[][] { new int[17], new int[17], new int[17], new int[17] };
 
 	private static final Random sRandom = new Random();
-	private Player[] mPlayers = new Player[4];
+	private Player[] mPlayers;
 	private int mPlayerIndex;
 
 	GongZhuDoc() {
-		mPlayers[0] = new AiPlayer();
-		mPlayers[1] = new AiPlayer();
-		mPlayers[2] = new AiPlayer();
-		mPlayers[3] = new AiPlayer();
+		mPlayers = new Player[] { null, new AiPlayer(), new AiPlayer(), new AiPlayer() };
 
 		startGame();
 	}
@@ -42,6 +39,9 @@ public class GongZhuDoc {
 					if (mCards[j][k] == -1) {
 						if (card-- == 0) {
 							mCards[j][k] = i;
+							if (i == 39) {
+								mUsedCards[4][0] = j;
+							}
 						}
 					}
 				}
@@ -54,7 +54,6 @@ public class GongZhuDoc {
 
 		mUsedCardsIndex = 0;
 		mPlayerIndex = 0;
-		mUsedCards[4][0] = sRandom.nextInt(4);
 	}
 
 	private static final int[] trimArray(int[] in) {
@@ -72,6 +71,31 @@ public class GongZhuDoc {
 			}
 		}
 		return out;
+	}
+
+	private void useCard2(int player, int card) throws Exception {
+		int firstPlayer = mUsedCards[4][mUsedCardsIndex];
+
+		Arrays.sort(mCards[player]);
+		int currentCardIndex = Arrays.binarySearch(mCards[player], card);
+		if (currentCardIndex < 0) {
+			throw new Exception("card not found");
+		}
+		if (mPlayerIndex != 0) {
+			int firstCardType = mUsedCards[firstPlayer][mUsedCardsIndex] / 13;
+
+			if (card / 13 != firstCardType) {
+				for (int c : mCards[player]) {
+					if (c != -1 && c / 13 == firstCardType) {
+						throw new Exception("you cann't throw this card");
+					}
+				}
+			}
+		}
+
+		mCards[player][currentCardIndex] = -1;
+		mUsedCards[player][mUsedCardsIndex] = card;
+		mPlayerIndex++;
 	}
 
 	void tick() throws Exception {
@@ -113,6 +137,10 @@ public class GongZhuDoc {
 			player -= 4;
 		}
 
+		if (mPlayers[player] == null) {
+			return;
+		}
+
 		int[] cards = trimArray(mCards[player]);
 		int[][] usedCards = new int[5][];
 		int[][] gotCards = new int[4][];
@@ -134,33 +162,32 @@ public class GongZhuDoc {
 		}
 		int currentCard = mPlayers[player].tick(cards, usedCards, gotCards);
 
-		Arrays.sort(mCards[player]);
-		int currentCardIndex = Arrays.binarySearch(mCards[player], currentCard);
-		if (currentCardIndex < 0) {
-			throw new Exception("card not found");
-		}
-		if (mPlayerIndex != 0) {
-			int firstCardType = mUsedCards[firstPlayer][mUsedCardsIndex] / 13;
+		useCard2(player, currentCard);
+	}
 
-			if (currentCard / 13 != firstCardType) {
-				for (int card : mCards[player]) {
-					if (card != -1 && card / 13 == firstCardType) {
-						throw new Exception("you cann't throw this card");
-					}
-				}
-			}
+	void useCard(int player, int card) throws Exception {
+		if (mPlayers[player] != null) {
+			throw new Exception("this is a ai player");
 		}
 
-		mCards[player][currentCardIndex] = -1;
-		mUsedCards[player][mUsedCardsIndex] = currentCard;
-		mPlayerIndex++;
+		int firstPlayer = mUsedCards[4][mUsedCardsIndex];
+		int currentPlayer = firstPlayer + mPlayerIndex;
+		if (currentPlayer > 3) {
+			currentPlayer -= 4;
+		}
+
+		if (currentPlayer != player) {
+			throw new Exception("it is not your turn");
+		}
+
+		useCard2(player, card);
 	}
 
 	public interface Player {
 		int tick(int[] cards, int[][] usedCards, int[][] gotCards);
 	}
 
-	class AiPlayer implements Player {
+	private static class AiPlayer implements Player {
 		@Override
 		public int tick(int[] cards, int[][] usedCards, int[][] gotCards) {
 			int usedCardsIndex = usedCards[4].length - 1;
@@ -176,5 +203,13 @@ public class GongZhuDoc {
 			}
 			return cards[0];
 		}
+	}
+
+	public static int TestAiPlayer(Player player, int testCount) {
+		return 0;
+	}
+
+	public static void main(String[] args) {
+
 	}
 }

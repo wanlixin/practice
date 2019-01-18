@@ -2,8 +2,12 @@ package com.lixinwan;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -16,9 +20,15 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-public class GongZhuView extends JComponent implements ActionListener {
+public class GongZhuView extends JComponent implements ActionListener, MouseListener {
 	private static final long serialVersionUID = 1L;
 	private static JTextArea STATUS = null;
+
+	private Point[] mCardsLocation;
+	private Point[] mGotCardsOffset = new Point[] { new Point(0, 50), new Point(40, 0), new Point(0, -50),
+			new Point(-40, 0) };
+	private Point[] mCardsOffset = new Point[] { new Point(20, 0), new Point(0, 26), new Point(-20, 0),
+			new Point(0, -26) };
 
 	public static String formatException(Throwable e) {
 		return "·¢ÉúÒì³£: " + e.getMessage();
@@ -85,6 +95,18 @@ public class GongZhuView extends JComponent implements ActionListener {
 				loadImage("/res/bmp2/47.bmp"), loadImage("/res/bmp2/48.bmp"), loadImage("/res/bmp2/49.bmp"),
 				loadImage("/res/bmp2/4a.bmp"), loadImage("/res/bmp2/4b.bmp"), loadImage("/res/bmp2/4c.bmp"),
 				loadImage("/res/bmp2/4d.bmp"), loadImage("/res/bmp2/41.bmp") };
+
+		int backgroundWidth = backgroundImage.getWidth(null);
+		int backgroundHeight = backgroundImage.getHeight(null);
+		int backHalfWidth = backImage.getWidth(null) / 2;
+		int backHalfHeight = backImage.getHeight(null) / 2;
+
+		mCardsLocation = new Point[] { new Point(backgroundWidth / 2, backgroundHeight - backHalfHeight - 10),
+				new Point(backgroundWidth - backHalfWidth - 10, backgroundHeight / 2),
+				new Point(backgroundWidth / 2, backHalfHeight + 10),
+				new Point(backHalfWidth + 10, backgroundHeight / 2) };
+
+		addMouseListener(this);
 		Timer timer = new Timer(500, this);
 		timer.start();
 	}
@@ -93,48 +115,52 @@ public class GongZhuView extends JComponent implements ActionListener {
 		return ImageIO.read(this.getClass().getResourceAsStream(path));
 	}
 
-	private void drawCards(int[] cards, Graphics g, int x, int y, boolean vertical, boolean add, boolean showBack) {
-		int count = 0;
-		int[] cards2 = new int[52];
-		for (int card : cards) {
-			if (card >= 0 && card < 52) {
-				cards2[count++] = card;
-			}
-		}
-
-		int step = vertical ? (add ? 13 : -13) : (add ? 10 : -10);
-
-		if (vertical) {
-			y -= count * step;
-		} else {
-			x -= count * step;
-		}
-
-		for (int i = 0; i < count; i++) {
-			g.drawImage(showBack ? backImage : cardImages[cards2[i]], x, y, this);
-
-			if (vertical) {
-				y += step * 2;
-			} else {
-				x += step * 2;
-			}
-		}
-	}
-
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 		g.drawImage(backgroundImage, 0, 0, this);
 
-		drawCards(gongZhuDoc.mCards[0], g, 300, 360, false, true, false);
-		drawCards(gongZhuDoc.mCards[1], g, 560, 180, true, true, false);
-		drawCards(gongZhuDoc.mCards[2], g, 290, 10, false, false, false);
-		drawCards(gongZhuDoc.mCards[3], g, 10, 200, true, false, false);
+		for (int i = 0; i < 4; i++) {
+			for (int k = 0; k < 2; k++) {
+				int[] cards = (k == 0) ? gongZhuDoc.mCards[i] : gongZhuDoc.mGotCards[i];
 
-		drawCards(gongZhuDoc.mGotCards[0], g, 300, 420, false, true, false);
-		drawCards(gongZhuDoc.mGotCards[1], g, 600, 180, true, true, false);
-		drawCards(gongZhuDoc.mGotCards[2], g, 290, -50, false, false, false);
-		drawCards(gongZhuDoc.mGotCards[3], g, -40, 200, true, false, false);
+				int count = 0;
+				for (int card : cards) {
+					if (card >= 0 && card < 52) {
+						count++;
+					}
+				}
+
+				if (count == 0) {
+					continue;
+				}
+
+				int locationX = mCardsLocation[i].x;
+				int locationY = mCardsLocation[i].y;
+				if (k == 1) {
+					locationX += mGotCardsOffset[i].x;
+					locationY += mGotCardsOffset[i].y;
+				}
+
+				Point cardsOffset = mCardsOffset[i];
+				int width = backImage.getWidth(null) + (count - 1) * Math.abs(cardsOffset.x);
+				int height = backImage.getHeight(null) + (count - 1) * Math.abs(cardsOffset.y);
+
+				int x = (cardsOffset.x < 0) ? (locationX + width / 2 - backImage.getWidth(null))
+						: ((locationX - width / 2));
+				int y = (cardsOffset.y < 0) ? (locationY + height / 2 - backImage.getHeight(null))
+						: ((locationY - height / 2));
+
+				for (int card : cards) {
+					if (card < 0 || card > 51) {
+						continue;
+					}
+					g.drawImage(cardImages[card], x, y, this);
+					x += cardsOffset.x;
+					y += cardsOffset.y;
+				}
+			}
+		}
 
 		int usedCardsIndex = gongZhuDoc.mUsedCardsIndex;
 		if (gongZhuDoc.mUsedCards[0][usedCardsIndex] != -1) {
@@ -159,5 +185,83 @@ public class GongZhuView extends JComponent implements ActionListener {
 		} catch (Throwable ex) {
 			appendStatus(formatException(ex));
 		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		if (arg0.getClickCount() != 2 || arg0.getButton() != MouseEvent.BUTTON1) {
+			return;
+		}
+		int clickedPlayer = -1;
+		int clickedCard = -1;
+		for (int i = 0; i < 4; i++) {
+			for (int k = 0; k < 2; k++) {
+				int[] cards = (k == 0) ? gongZhuDoc.mCards[i] : gongZhuDoc.mGotCards[i];
+
+				int count = 0;
+				for (int card : cards) {
+					if (card >= 0 && card < 52) {
+						count++;
+					}
+				}
+
+				if (count == 0) {
+					continue;
+				}
+
+				int locationX = mCardsLocation[i].x;
+				int locationY = mCardsLocation[i].y;
+				if (k == 1) {
+					locationX += mGotCardsOffset[i].x;
+					locationY += mGotCardsOffset[i].y;
+				}
+
+				Point cardsOffset = mCardsOffset[i];
+				int width = backImage.getWidth(null) + (count - 1) * Math.abs(cardsOffset.x);
+				int height = backImage.getHeight(null) + (count - 1) * Math.abs(cardsOffset.y);
+
+				int x = (cardsOffset.x < 0) ? (locationX + width / 2 - backImage.getWidth(null))
+						: ((locationX - width / 2));
+				int y = (cardsOffset.y < 0) ? (locationY + height / 2 - backImage.getHeight(null))
+						: ((locationY - height / 2));
+
+				for (int card : cards) {
+					if (card < 0 || card > 51) {
+						continue;
+					}
+					if (arg0.getX() >= x && arg0.getX() < x + backImage.getWidth(null) && arg0.getY() >= y
+							&& arg0.getY() < y + backImage.getHeight(null)) {
+						clickedPlayer = i;
+						clickedCard = card;
+					}
+					x += cardsOffset.x;
+					y += cardsOffset.y;
+				}
+			}
+		}
+		if (clickedCard != -1) {
+			try {
+				gongZhuDoc.useCard(clickedPlayer, clickedCard);
+				repaint();
+			} catch (Exception e) {
+				Toolkit.getDefaultToolkit().beep();
+			}
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
 	}
 }
