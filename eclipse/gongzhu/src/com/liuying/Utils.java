@@ -29,27 +29,28 @@ public class Utils {
 	static Comparator<Card> comparatorCardLargeToSmall = new Comparator<Card>() {
 		@Override
 		public int compare(Card c1, Card c2) {
-			
+
 			return (c2.getPoint() - c1.getPoint());
 		}
-			
+
 	};
 
 	static Comparator<Card> comparatorCardSmallToLarge = new Comparator<Card>() {
 		@Override
 		public int compare(Card c1, Card c2) {
-			
+
 			return (c1.getPoint() - c2.getPoint());
 		}
-			
+
 	};
 
 	static Comparator<Card> comparatorSelectCardToSend = new Comparator<Card>() {
 		@Override
 		public int compare(Card c1, Card c2) {
-				
-			return (c1.Percentage == c2.Percentage) ? (c1.count - c2.count) : (int) (c2.Percentage * 10000 - c1.Percentage * 10000);
-		
+
+			return (c1.Percentage == c2.Percentage) ? (c1.count - c2.count)
+					: (int) (c2.Percentage * 10000 - c1.Percentage * 10000);
+
 		}
 	};
 
@@ -340,28 +341,23 @@ public class Utils {
 			System.out.println(testArray.get(i).getPoint());
 		}
 
-
 		testArray.sort(comparatorCardSmallToLarge);
 		System.out.println("Small To Large");
 		for (int i = 0; i < testArray.size(); i++) {
 			System.out.println(testArray.get(i).getPoint());
 		}
-		
+
 		testArray.sort(comparatorCardLargeToSmall);
 		System.out.println("Large To Small");
 		for (int i = 0; i < testArray.size(); i++) {
 			System.out.println(testArray.get(i).getPoint());
 		}
-		
-		
-	testArray.sort(comparatorSelectCardToSend);
+
+		testArray.sort(comparatorSelectCardToSend);
 		System.out.println("comparatorSelectCardToSend");
 		for (int i = 0; i < testArray.size(); i++) {
 			System.out.println(testArray.get(i).getPoint());
 		}
 
 	}
-	}
-
-
-
+}
