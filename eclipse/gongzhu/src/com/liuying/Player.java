@@ -39,19 +39,17 @@ public class Player implements GongZhuDoc.Player {
 			cardInHand[i] = toCard(cards[i]);
 		}
 
+		Card card;
 		int firstPlayer = usedCards[4][usedCardsIndex];
 		if (firstPlayer != 0) {
-			int firstCard = usedCards[firstPlayer][usedCardsIndex];
-			int firstCardType = firstCard / 13;
-			for (int card : cards) {
-				if (card / 13 == firstCardType) {
-					return card;
-				}
+			Card[] CardThisTurn = new Card[4 - firstPlayer];
+			for (int i = firstPlayer; i < 4; i++) {
+				CardThisTurn[i - firstPlayer] = toCard(usedCards[i][usedCardsIndex]);
 			}
+			card = Utils.FollowCard(cardOnTable, cardInHand, CardThisTurn, 0, 0, 0, 0);
+		} else {
+			card = Utils.SendOutCard(cardOnTable, cardInHand, 0, 0, 0, 0);
 		}
-
-		Card card = Utils.SendOutCard(cardOnTable, cardInHand, 0, 0, 0, 0);
-
 		return fromCard(card);
 	}
 

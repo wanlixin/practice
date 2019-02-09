@@ -20,6 +20,8 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import com.liuying.Player;
+
 public class GongZhuView extends JComponent implements ActionListener, MouseListener {
 	private static final long serialVersionUID = 1L;
 	private static JTextArea STATUS = null;
@@ -69,8 +71,7 @@ public class GongZhuView extends JComponent implements ActionListener, MouseList
 		});
 	}
 
-	private GongZhuDoc gongZhuDoc = new GongZhuDoc(null, new GongZhuDoc.AiPlayer(), new com.liuying.Player(),
-			new GongZhuDoc.AiPlayer());
+	private GongZhuDoc gongZhuDoc = new GongZhuDoc(null, new Player(), new Player(), new Player());
 	private Image backgroundImage;
 	private Image backImage;
 	private Image[] cardImages;

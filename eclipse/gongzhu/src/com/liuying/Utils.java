@@ -2,7 +2,10 @@ package com.liuying;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 public class Utils {
 
@@ -126,25 +129,29 @@ public class Utils {
 		if (!heitaoHandArray.isEmpty()) {
 			smallCards.add(heitaoHandArray.get(heitaoHandArray.size() - 1));
 			smallCards.get(smallCards.size() - 1).count = heitaoHandArray.size();
-			smallCards.get(smallCards.size() - 1).Percentage = compareCardWithOther(CardType.HEITAO);
+			smallCards.get(smallCards.size() - 1).Percentage = compareCardWithOther(
+					heitaoHandArray.get(heitaoHandArray.size() - 1), CardType.HEITAO);
 		}
 
 		if (!hongtaoHandArray.isEmpty()) {
 			smallCards.add(hongtaoHandArray.get(hongtaoHandArray.size() - 1));
 			smallCards.get(smallCards.size() - 1).count = hongtaoHandArray.size();
-			smallCards.get(smallCards.size() - 1).Percentage = compareCardWithOther(CardType.HONGTAO);
+			smallCards.get(smallCards.size() - 1).Percentage = compareCardWithOther(
+					hongtaoHandArray.get(hongtaoHandArray.size() - 1), CardType.HONGTAO);
 		}
 
 		if (!meihuaHandArray.isEmpty()) {
 			smallCards.add(meihuaHandArray.get(meihuaHandArray.size() - 1));
 			smallCards.get(smallCards.size() - 1).count = meihuaHandArray.size();
-			smallCards.get(smallCards.size() - 1).Percentage = compareCardWithOther(CardType.MEIHUA);
+			smallCards.get(smallCards.size() - 1).Percentage = compareCardWithOther(
+					meihuaHandArray.get(meihuaHandArray.size() - 1), CardType.MEIHUA);
 		}
 
 		if (!fangkuaiHandArray.isEmpty()) {
 			smallCards.add(fangkuaiHandArray.get(fangkuaiHandArray.size() - 1));
 			smallCards.get(smallCards.size() - 1).count = fangkuaiHandArray.size();
-			smallCards.get(smallCards.size() - 1).Percentage = compareCardWithOther(CardType.FANGKUAI);
+			smallCards.get(smallCards.size() - 1).Percentage = compareCardWithOther(
+					fangkuaiHandArray.get(fangkuaiHandArray.size() - 1), CardType.FANGKUAI);
 		}
 
 	}
@@ -183,17 +190,17 @@ public class Utils {
 
 		}
 
-		// 牌里面有比J 大的牌，并且J在别人手里，没有卖，下面的牌少于7张，那么出最大的牌
+		// 牌里面有比J 大的牌，并且J在别人手里，没有卖，//下面的牌少于7张，那么出最大的牌
 		if (!fangkuaiInOtherOne.isEmpty() && !fangkuaiHandArray.isEmpty()
 				&& fangkuaiHandArray.get(0).getPoint() > sheepCard.getPoint() && fangkuaiInOtherOne.contains(sheepCard)
-				&& saleSheep == 0 && fangkuaiTableArray.size() < 7) {
+				&& saleSheep == 0) {
 			return fangkuaiHandArray.get(0);
 		}
 
 		// 牌里面有比J 大的牌，J在别人手里，J 卖了，下面的牌大于1张 小于7张，那么出最大的牌
 		if (!fangkuaiInOtherOne.isEmpty() && !fangkuaiHandArray.isEmpty()
 				&& fangkuaiHandArray.get(0).getPoint() > sheepCard.getPoint() && fangkuaiInOtherOne.contains(sheepCard)
-				&& saleSheep != 0 && fangkuaiTableArray.size() > 0 && fangkuaiTableArray.size() < 7) {
+				&& saleSheep != 0 && fangkuaiTableArray.size() > 0 && fangkuaiTableArray.size() < 10) {
 			return fangkuaiHandArray.get(0);
 		}
 
@@ -203,8 +210,8 @@ public class Utils {
 
 	}
 
-	// 计算给定的花色最小的牌，别人的牌比它的大百分比。
-	private static Double compareCardWithOther(CardType cardType) {
+	// 计算给定的花色的牌，别人的牌比它的大百分比。
+	private static Double compareCardWithOther(Card current, CardType cardType) {
 		int count = 0;
 		ArrayList<Card> cardsInOtherOne = new ArrayList<>();
 		ArrayList<Card> cardsInHand = new ArrayList<>();
@@ -237,7 +244,7 @@ public class Utils {
 		}
 
 		for (Card c : cardsInOtherOne) {
-			if (c.getPoint() > cardsInHand.get(cardsInHand.size() - 1).getPoint()) {
+			if (c.getPoint() > current.getPoint()) {
 				count++;
 			}
 		}
@@ -282,6 +289,219 @@ public class Utils {
 
 	}
 
+	// sale: 0 stand for didn't sale, sale: 1 stand for sale other, sale: 2 stand
+	// for sale by yourself
+	public static Card FollowCard(Card[] cardOnTable, Card[] cardInHand, Card[] CardThisTurn, int salePig,
+			int saleSheep, int saleRed, int saleDouble) {
+
+		Card returnCard = null;
+		Card currentCard;
+		currentCard = CardThisTurn[0];
+		cardArrange(cardOnTable, cardInHand);
+
+		// if only one card in the hand, then send out the card
+		if (cardInHand.length == 1) {
+			return cardInHand[0];
+		}
+
+		// if only one card in the type, then send out the card
+		ArrayList<Card> currentCardArray = new ArrayList<>();
+		if (currentCard.getColor() == CardType.HEITAO.toString()) {
+			currentCardArray = heitaoHandArray;
+		}
+		if (currentCard.getColor() == CardType.HONGTAO.toString()) {
+			currentCardArray = hongtaoHandArray;
+		}
+		if (currentCard.getColor() == CardType.MEIHUA.toString()) {
+			currentCardArray = meihuaHandArray;
+		}
+		if (currentCard.getColor() == CardType.FANGKUAI.toString()) {
+			currentCardArray = fangkuaiHandArray;
+		}
+
+		if (currentCardArray.size() == 1) {
+			return currentCardArray.get(0);
+		}
+
+		// first scan,如果出牌花色手里没有
+		if (currentCardArray.size() == 0) {
+			return FirstScanByFollow(cardOnTable, cardInHand, salePig, saleSheep, saleRed, saleDouble);
+		}
+
+		// second scan 如果出牌花色手里有
+		returnCard = secondScanByFollow(cardOnTable, cardInHand, CardThisTurn, currentCardArray, salePig, saleSheep,
+				saleRed, saleDouble);
+
+		return returnCard;
+
+	}
+
+	// 如果出牌花色手里有的情况
+	private static Card secondScanByFollow(Card[] cardOnTable, Card[] cardInHand, Card[] CardThisTurn,
+			ArrayList<Card> currentCardArray, int salePig, int saleSheep, int saleRed, int saleDouble) {
+
+		CardType cardType = CardType.HEITAO;
+		Card smallCardThisTurn = CardThisTurn[0];
+		for (int i = 0; i < CardThisTurn.length; i++) {
+			if (CardThisTurn[i].getPoint() < smallCardThisTurn.getPoint()
+					&& CardThisTurn[i].getColor() == smallCardThisTurn.getColor()) {
+				smallCardThisTurn = CardThisTurn[i];
+			}
+
+		}
+
+		Card bigCardThisTurn = CardThisTurn[0];
+		for (int i = 0; i < CardThisTurn.length; i++) {
+			if (CardThisTurn[i].getPoint() > smallCardThisTurn.getPoint()
+					&& CardThisTurn[i].getColor() == smallCardThisTurn.getColor()) {
+				smallCardThisTurn = CardThisTurn[i];
+			}
+
+		}
+
+		// 如果出牌花色是黑桃的情况
+		if (CardThisTurn[0].getColor() == CardType.HEITAO.toString()) {
+
+			// 第一轮 ,猪卖了，出非猪之外最大的
+			if (salePig != 0 && heitaoTableArray.size() == 0) {
+				if (heitaoHandArray.get(0).equals(pigCard)) {
+					return heitaoHandArray.get(1);
+				} else {
+					return heitaoHandArray.get(0);
+				}
+
+			}
+
+			// 第一轮 ,猪没有卖，出比最大的略小的牌 这里可以改进 这是通用逻辑
+
+			// 不是第一轮，手上有猪，桌面上有比猪大的牌，那么出猪
+
+			if (heitaoTableArray.size() != 0 && heitaoHandArray.contains(pigCard) && bigCardThisTurn.getPoint() > 12) {
+				return pigCard;
+			}
+
+			// 不是第一轮，手上有猪，桌面最大的牌比猪小， //通用逻辑
+
+			// 不是第一轮，手上无猪，那么出最大的牌略小的牌，或者当前最小的牌 通用逻辑
+
+			// 这是通用逻辑
+
+		}
+
+		// 如果出牌花色是红桃的情况
+		if (CardThisTurn[0].getColor() == CardType.HONGTAO.toString()) {
+
+			cardType = CardType.HONGTAO;
+
+			// 这是通用逻辑
+
+		}
+
+		// 如果出牌花色是梅花的情况
+		if (CardThisTurn[0].getColor() == CardType.MEIHUA.toString()) {
+
+			cardType = CardType.MEIHUA;
+
+			// 第一轮 ,梅花卖了，出非梅花之外最大的
+			if (saleSheep != 0 && meihuaTableArray.size() == 0) {
+				if (meihuaHandArray.get(0).equals(doubleCard)) {
+					return meihuaHandArray.get(1);
+				} else {
+					return meihuaHandArray.get(0);
+				}
+
+			}
+
+		}
+
+		// 如果出牌花色是方块的情况
+		if (CardThisTurn[0].getColor() == CardType.FANGKUAI.toString()) {
+
+			cardType = CardType.FANGKUAI;
+
+			// 第一轮 ,方块卖了，出非方块之下最大的
+			if (saleSheep != 0 && fangkuaiTableArray.size() == 0) {
+				for (int i = 0; i < currentCardArray.size(); i++) {
+					if (sheepCard.getPoint() > currentCardArray.get(i).getPoint()) {
+						return currentCardArray.get(i);
+					}
+				}
+
+			}
+
+			// 前两轮 ,出最大的
+			if (fangkuaiTableArray.size() <= 5) {
+				currentCardArray.get(0);
+			}
+
+		}
+
+		// 这是通用逻辑
+		for (int i = 0; i < currentCardArray.size(); i++) {
+			if (bigCardThisTurn.getPoint() > currentCardArray.get(i).getPoint()) {
+				return currentCardArray.get(i);
+			}
+		}
+		for (int i = 0; i < currentCardArray.size(); i++) {
+			if (compareCardWithOther(currentCardArray.get(i), cardType) == 1.0) {
+				System.out.println("suanpai");
+				return currentCardArray.get(i);
+			}
+		}
+		return currentCardArray.get(currentCardArray.size() - 1);
+
+	}
+
+	// 如果出牌花色手里没有，那么黑桃如果有猪，出猪。如果有变压器，出变压器。如果红桃大于10，出最大红桃。最后，出牌最少的里面花色最大的，
+	public static Card FirstScanByFollow(Card[] cardOnTable, Card[] cardInHand, int salePig, int saleSheep, int saleRed,
+			int saleDouble) {
+
+		// 黑桃如果有猪，出猪
+		if (!heitaoHandArray.isEmpty() && heitaoHandArray.contains(pigCard)) {
+			return pigCard;
+		}
+
+		// 如果有变压器，出变压器
+		if (!meihuaHandArray.isEmpty() && meihuaHandArray.contains(doubleCard)) {
+			return doubleCard;
+		}
+
+		// 如果红桃大于10，出最大红桃
+		if (!hongtaoHandArray.isEmpty() && hongtaoHandArray.get(0).getPoint() > 10) {
+			return hongtaoHandArray.get(0);
+		}
+
+		for (CardType c : CardType.values()) {
+
+		}
+
+		ArrayList<Card> smallList = heitaoHandArray;
+		if (smallList.isEmpty()) {
+			smallList = meihuaHandArray;
+		}
+		if (smallList.isEmpty()) {
+			smallList = hongtaoHandArray;
+		}
+		if (smallList.isEmpty()) {
+			smallList = fangkuaiHandArray;
+		}
+
+		if (smallList.size() > meihuaHandArray.size() && !meihuaHandArray.isEmpty()) {
+			smallList = meihuaHandArray;
+		}
+
+		if (smallList.size() > hongtaoHandArray.size() && !hongtaoHandArray.isEmpty()) {
+			smallList = hongtaoHandArray;
+		}
+
+		if (smallList.size() > fangkuaiHandArray.size() && !fangkuaiHandArray.isEmpty()) {
+			smallList = fangkuaiHandArray;
+		}
+
+		return smallList.get(0);
+
+	}
+
 	enum Day {
 		MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
 	}
@@ -289,6 +509,8 @@ public class Utils {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+		ArrayList<Card> smallList = new ArrayList<Card>();
+		System.out.println("size of empty arraylist : " + smallList.size());
 		Card[] cardOnTable = new Card[] { new Card(CardType.FANGKUAI.toString(), 8),
 				new Card(CardType.HONGTAO.toString(), 12), new Card(CardType.MEIHUA.toString(), 2),
 				new Card(CardType.HEITAO.toString(), 5), new Card(CardType.FANGKUAI.toString(), 7),
@@ -308,6 +530,19 @@ public class Utils {
 				new Card(CardType.HEITAO.toString(), 6), new Card(CardType.FANGKUAI.toString(), 11),
 				new Card(CardType.HEITAO.toString(), 10), new Card(CardType.HONGTAO.toString(), 8),
 				new Card(CardType.MEIHUA.toString(), 5), };
+
+		cardArrange(cardOnTable, cardInHand);
+
+		if (cardOnTable[0].equals(new Card(CardType.FANGKUAI.toString(), 8))) {
+			System.out.println("对象数组可以用equal 比较");
+		}
+
+		if (compareCardWithOther(new Card(CardType.HONGTAO.toString(), 2), CardType.HONGTAO) == 1.0) {
+			System.out.println("可以比较");
+		}
+
+		System.out.println(
+				"..............." + compareCardWithOther(new Card(CardType.HONGTAO.toString(), 2), CardType.HONGTAO));
 
 		Card c = SendOutCard(cardOnTable, cardInHand, 1, 1, 1, 1);
 
