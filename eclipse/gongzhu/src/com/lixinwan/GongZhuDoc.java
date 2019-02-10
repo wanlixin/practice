@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class GongZhuDoc {
-
 	int[][] mCards = new int[][] { new int[13], new int[13], new int[13], new int[13] };
 	int[][] mUsedCards = new int[][] { new int[13], new int[13], new int[13], new int[13], new int[13] };
 	int mUsedCardsIndex;
@@ -237,6 +236,42 @@ public class GongZhuDoc {
 	}
 
 	public static class AiPlayer implements Player {
+		private static boolean haveCard(int theCard, int[] cards) {
+			for (int card : cards) {
+				if (card == theCard) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private static int getMaxCard(int type, int[] cards, int max) {
+			int maxCard = -1;
+			for (int card : cards) {
+				if (card / 13 == type && card < max && maxCard < card) {
+					maxCard = card;
+				}
+			}
+			if (maxCard == -1) {
+				for (int card : cards) {
+					if (card / 13 == type && maxCard < card) {
+						maxCard = card;
+					}
+				}
+			}
+			return maxCard;
+		}
+
+		private static int getMinCard(int type, int[] cards) {
+			int minCard = 100;
+			for (int card : cards) {
+				if (card / 13 == type && card < minCard) {
+					minCard = card;
+				}
+			}
+			return (minCard == 100) ? -1 : minCard;
+		}
+
 		@Override
 		public int tick(int[] cards, int[][] usedCards, int[][] gotCards) {
 			int usedCardsIndex = usedCards[4].length - 1;
@@ -244,21 +279,39 @@ public class GongZhuDoc {
 			if (firstPlayer != 0) {
 				int firstCard = usedCards[firstPlayer][usedCardsIndex];
 				int firstCardType = firstCard / 13;
-				for (int card : cards) {
-					if (card / 13 == firstCardType) {
-						return card;
+				if (firstCardType == 0) {
+					int maxCard = getMaxCard(firstCardType, cards, 100);
+					if (maxCard != -1) {
+						return maxCard;
 					}
+				} else if (firstCardType == 1) {
+					int maxCard = getMaxCard(firstCardType, cards, 23);
+					if (maxCard != -1) {
+						return maxCard;
+					}
+				} else if (firstCardType == 2) {
+					int minCard = getMinCard(firstCardType, cards);
+					if (minCard != -1) {
+						return minCard;
+					}
+				} else if (firstCardType == 3) {
+					int maxCard = getMaxCard(firstCardType, cards, 47);
+					if (maxCard != -1) {
+						return maxCard;
+					}
+				}
+				if (haveCard(23, cards)) {
+					return 23;
+				}
+				if (haveCard(47, cards)) {
+					return 47;
+				}
+				int maxCard = getMaxCard(2, cards, 100);
+				if (maxCard != -1) {
+					return maxCard;
 				}
 			}
 			return cards[0];
 		}
-	}
-
-	public static int TestAiPlayer(Player player, int testCount) {
-		return 0;
-	}
-
-	public static void main(String[] args) {
-
 	}
 }
