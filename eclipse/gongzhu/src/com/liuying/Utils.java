@@ -372,7 +372,10 @@ public class Utils {
 
 			}
 
-			// 第一轮 ,猪没有卖，出比最大的略小的牌 这里可以改进 这是通用逻辑
+			// 第一轮 ,猪没有卖，桌上有比猪大的牌 手里有猪 
+			if (salePig == 0 && heitaoTableArray.size() == 0 && heitaoHandArray.contains(pigCard) && bigCardThisTurn.getPoint() > 12 ) {
+				return pigCard;
+			}
 
 			// 不是第一轮，手上有猪，桌面上有比猪大的牌，那么出猪
 
@@ -431,7 +434,20 @@ public class Utils {
 
 			// 前两轮 ,出最大的
 			if (fangkuaiTableArray.size() <= 5) {
-				currentCardArray.get(0);
+				if(!currentCardArray.get(0).equals(sheepCard))
+				{
+					return currentCardArray.get(0);
+				}
+			}
+			
+			
+			// 如果手里有羊，并且桌上的牌比羊大 出非羊的
+			if (bigCardThisTurn.getPoint() > sheepCard.getPoint() && currentCardArray.contains(sheepCard)) {
+				if(!currentCardArray.get(0).equals(sheepCard))
+				{
+					return currentCardArray.get(0);
+				}
+				return currentCardArray.get(1);
 			}
 
 		}
